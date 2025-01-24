@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { MembershipForm } from "../forms/membership-form"
+import { queries } from "@/lib/supabase/queries"
 import type { Membership, MembershipFormData } from "@/lib/types/memberships"
-import { mockMembershipsApi } from "@/lib/data/mock-memberships"
 
 interface EditMembershipDialogProps {
   membership: Membership | null
@@ -29,7 +29,7 @@ export function EditMembershipDialog({
       setIsLoading(true)
       setError(null)
 
-      mockMembershipsApi.update(membership.id, {
+      await queries.user_teams.update(membership.id, {
         user_id: data.userId,
         team_id: data.teamId
       })
@@ -51,7 +51,7 @@ export function EditMembershipDialog({
       setIsLoading(true)
       setError(null)
 
-      mockMembershipsApi.delete(membership.id)
+      await queries.user_teams.delete(membership.id)
       
       onOpenChange(false)
       onSuccess?.()
@@ -63,7 +63,7 @@ export function EditMembershipDialog({
     }
   }
 
-  if (!membership) return null
+  if (!membership || !membership.user_id || !membership.team_id) return null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

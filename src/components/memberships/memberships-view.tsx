@@ -11,10 +11,9 @@ import type { Membership } from '@/lib/types/memberships'
 
 interface MembershipsViewProps {
   memberships: Membership[]
-  onSuccess: () => void
 }
 
-export function MembershipsView({ memberships, onSuccess }: MembershipsViewProps) {
+export function MembershipsView({ memberships }: MembershipsViewProps) {
   const queryClient = useQueryClient()
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [editingMembership, setEditingMembership] = useState<Membership | null>(null)
@@ -38,7 +37,6 @@ export function MembershipsView({ memberships, onSuccess }: MembershipsViewProps
 
   const handleSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['memberships'] })
-    onSuccess()
   }
 
   return (

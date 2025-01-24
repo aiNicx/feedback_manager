@@ -205,7 +205,7 @@ export const queries = {
     }
   },
 
-  // User Teams
+  // User Teams (Memberships)
   user_teams: {
     getAll: async () => {
       const { data, error } = await supabase
@@ -215,31 +215,86 @@ export const queries = {
           user_id,
           team_id,
           created_at,
-          user:users(id, name, surname, email),
+          user:users(
+            id,
+            name,
+            surname,
+            email
+          ),
           team:teams(
             id,
             name,
-            leader:users(id, name, surname),
-            team_clusters(
-              cluster:clusters(
-                id,
-                name
-              )
-            )
+            project,
+            isclusterleader
           )
         `)
         .order('created_at', { ascending: false })
       if (error) throw error
-      return data
+      return data.map(item => ({
+        ...item,
+        user: item.user,
+        team: item.team
+      }))
     },
-    create: async (membership: { id: string; user_id: string; team_id: string }) => {
+
+    create: async (membership: { user_id: string; team_id: string }) => {
       const { data, error } = await supabase
         .from('user_teams')
-        .insert([membership])
-        .select()
+        .insert([{
+          id: crypto.randomUUID(),
+          ...membership
+        }])
+        .select(`
+          id,
+          user_id,
+          team_id,
+          created_at,
+          user:users(
+            id,
+            name,
+            surname,
+            email
+          ),
+          team:teams(
+            id,
+            name,
+            project,
+            isclusterleader
+          )
+        `)
+        .single()
       if (error) throw error
-      return data[0]
+      return data
     },
+
+    update: async (id: string, membership: { user_id?: string; team_id?: string }) => {
+      const { data, error } = await supabase
+        .from('user_teams')
+        .update(membership)
+        .eq('id', id)
+        .select(`
+          id,
+          user_id,
+          team_id,
+          created_at,
+          user:users(
+            id,
+            name,
+            surname,
+            email
+          ),
+          team:teams(
+            id,
+            name,
+            project,
+            isclusterleader
+          )
+        `)
+        .single()
+      if (error) throw error
+      return data
+    },
+
     delete: async (id: string) => {
       const { error } = await supabase
         .from('user_teams')

@@ -2,8 +2,8 @@
 
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { mockUsersApi } from "@/lib/data/mock-users"
-import { mockMembershipsApi } from "@/lib/data/mock-memberships"
+import { useQuery } from '@tanstack/react-query'
+import { queries } from '@/lib/supabase/queries'
 import type { MembershipFormData } from "@/lib/types/memberships"
 
 interface MembershipFormProps {
@@ -21,6 +21,16 @@ export function MembershipForm({
   mode = 'create',
   initialData
 }: MembershipFormProps) {
+  const { data: users = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: queries.users.getAll
+  })
+
+  const { data: teams = [] } = useQuery({
+    queryKey: ['teams'],
+    queryFn: queries.teams.getAll
+  })
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
@@ -31,18 +41,15 @@ export function MembershipForm({
     })
   }
 
-  // Ottieni la lista degli utenti disponibili (senza duplicati)
-  const users = mockUsersApi.getAll().sort((a, b) => 
+  // Ordina gli utenti per nome e cognome
+  const sortedUsers = [...users].sort((a, b) => 
     `${a.name} ${a.surname}`.localeCompare(`${b.name} ${b.surname}`)
   )
 
-  // Ottieni la lista dei team disponibili (senza duplicati)
-  const teams = Array.from(
-    new Map(mockMembershipsApi.getAll()
-      .filter(m => m.team) // Filtra solo i membership con team definito
-      .map(m => [m.team_id, { id: m.team_id, name: m.team?.name || 'Team senza nome' }]))
-      .values()
-  ).sort((a, b) => a.name.localeCompare(b.name))
+  // Ordina i team per nome
+  const sortedTeams = [...teams].sort((a, b) => 
+    a.name.localeCompare(b.name)
+  )
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -52,7 +59,7 @@ export function MembershipForm({
             <SelectValue placeholder="Seleziona utente" />
           </SelectTrigger>
           <SelectContent>
-            {users.map(user => (
+            {sortedUsers.map(user => (
               <SelectItem key={user.id} value={user.id}>
                 {user.name} {user.surname}
               </SelectItem>
@@ -67,7 +74,7 @@ export function MembershipForm({
             <SelectValue placeholder="Seleziona team" />
           </SelectTrigger>
           <SelectContent>
-            {teams.map(team => (
+            {sortedTeams.map(team => (
               <SelectItem key={team.id} value={team.id}>
                 {team.name}
               </SelectItem>

@@ -2,20 +2,23 @@
 
 import { StatCard } from '@/components/stats/stat-card'
 import { MembershipsView } from "@/components/memberships/memberships-view"
-import { useState } from 'react'
-import { mockMembershipsApi } from '@/lib/data/mock-memberships'
+import { useQuery } from '@tanstack/react-query'
+import { queries } from '@/lib/supabase/queries'
 import type { Membership } from "@/lib/types/memberships"
 
 export default function MembershipsPage() {
-  const [memberships, setMemberships] = useState<Membership[]>(mockMembershipsApi.getAll())
+  const { data: memberships = [], isLoading } = useQuery<Membership[]>({
+    queryKey: ['memberships'],
+    queryFn: queries.user_teams.getAll
+  })
 
   // Calcola le statistiche
   const totalMemberships = memberships.length
   const activeTeams = new Set(memberships.map(m => m.team_id)).size
   const activeUsers = new Set(memberships.map(m => m.user_id)).size
 
-  const handleSuccess = () => {
-    setMemberships(mockMembershipsApi.getAll())
+  if (isLoading) {
+    return <div>Caricamento...</div>
   }
 
   return (
@@ -48,10 +51,7 @@ export default function MembershipsPage() {
           <StatCard title="UTENTI ATTIVI" value={activeUsers} className="bg-green-100" />
         </div>
 
-        <MembershipsView 
-          memberships={memberships} 
-          onSuccess={handleSuccess}
-        />
+        <MembershipsView memberships={memberships} />
       </main>
     </div>
   )

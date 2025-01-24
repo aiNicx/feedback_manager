@@ -1,16 +1,20 @@
-// Tipo base per i dati mockati
-export interface Membership {
-  id: string
-  user_id: string
-  team_id: string
-  role: 'MEMBER' | 'LEADER'
-  created_at: string
+import type { Database } from "../supabase/database.types"
+
+// Tipi dal database Supabase
+export type UserTeam = Database['public']['Tables']['user_teams']['Row']
+export type UserTeamInsert = Database['public']['Tables']['user_teams']['Insert']
+export type UserTeamUpdate = Database['public']['Tables']['user_teams']['Update']
+
+// Tipo esteso con relazioni
+export interface Membership extends UserTeam {
   user: {
+    id: string
     name: string
     surname: string
     email: string
   } | null
   team: {
+    id: string
     name: string
     project: boolean | null
     isclusterleader: boolean | null
@@ -21,21 +25,6 @@ export interface Membership {
 export interface MembershipFormData {
   userId: string
   teamId: string
-}
-
-// Tipo per la creazione
-export interface MembershipCreate {
-  user_id: string
-  team_id: string
-  role: 'MEMBER' | 'LEADER'
-  user: null
-  team: null
-}
-
-// Tipo per l'aggiornamento
-export interface MembershipUpdate {
-  user_id: string
-  team_id: string
 }
 
 /* 
