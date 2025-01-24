@@ -23,6 +23,7 @@ export function ProcessForm({
   const form = useForm<ProcessFormData>({
     defaultValues: {
       processo: initialData?.processo || '',
+      domanda: initialData?.domanda || '',
     }
   })
 
@@ -35,6 +36,20 @@ export function ProcessForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Nome Processo</FormLabel>
+              <FormControl>
+                <Input {...field} disabled={isLoading} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="domanda"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Domanda</FormLabel>
               <FormControl>
                 <Input {...field} disabled={isLoading} />
               </FormControl>

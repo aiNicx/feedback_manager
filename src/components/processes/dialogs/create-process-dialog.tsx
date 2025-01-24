@@ -26,7 +26,8 @@ export function CreateProcessDialog({
       setError(null)
 
       mockProcessesApi.create({
-        processo: data.processo.trim()
+        processo: data.processo.trim(),
+        domanda: data.domanda.trim()
       })
       
       onOpenChange(false)

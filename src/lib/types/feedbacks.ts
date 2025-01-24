@@ -7,6 +7,12 @@ export interface Feedback {
   rule: number
 }
 
+export interface FeedbackFormData {
+  sender: string
+  receiver: string
+  question: string
+}
+
 export interface PreSessionStats {
   totalFeedbacks: number
   avgFeedbacksPerUser: number

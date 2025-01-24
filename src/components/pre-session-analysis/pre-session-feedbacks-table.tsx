@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { useSearchParams } from 'next/navigation'
+import { EditFeedbackDialog } from './dialogs/edit-feedback-dialog'
 
 interface PreSessionFeedbacksTableProps {
   sessionStatus: SessionStatus
@@ -18,11 +19,13 @@ interface PreSessionFeedbacksTableProps {
 
 export const PreSessionFeedbacksTable = ({ sessionStatus }: PreSessionFeedbacksTableProps) => {
   const [filterDuplicates, setFilterDuplicates] = useState(false)
+  const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(null)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const searchParams = useSearchParams()
   const receiverFilter = searchParams.get('receiver')
 
   // Mock data - da sostituire con dati reali dal backend
-  const feedbacks: Feedback[] = [
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([
     {
       id: '1',
       sender: 'William Zisa',
@@ -79,7 +82,7 @@ export const PreSessionFeedbacksTable = ({ sessionStatus }: PreSessionFeedbacksT
       tags: ['Mentoring', 'Soft Skills'],
       rule: 2,
     }
-  ]
+  ])
 
   // Filtra i feedback in base ai parametri URL
   const filteredFeedbacks = feedbacks.filter(feedback => {
@@ -89,6 +92,20 @@ export const PreSessionFeedbacksTable = ({ sessionStatus }: PreSessionFeedbacksT
     // Qui andrebbe aggiunto il filtro per sessione quando avremo il campo session nei feedback
     return true
   })
+
+  const handleEdit = (feedback: Feedback) => {
+    setSelectedFeedback(feedback)
+    setIsEditDialogOpen(true)
+  }
+
+  const handleEditSuccess = () => {
+    setFeedbacks(prevFeedbacks => {
+      if (!selectedFeedback) return prevFeedbacks
+      return prevFeedbacks.map(f => 
+        f.id === selectedFeedback.id ? selectedFeedback : f
+      )
+    })
+  }
 
   return (
     <>
@@ -181,7 +198,11 @@ export const PreSessionFeedbacksTable = ({ sessionStatus }: PreSessionFeedbacksT
                   </div>
                 </div>
               </div>
-              <Button variant="ghost" size="icon">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => handleEdit(feedback)}
+              >
                 <Edit className="h-4 w-4" />
               </Button>
             </div>
@@ -221,7 +242,11 @@ export const PreSessionFeedbacksTable = ({ sessionStatus }: PreSessionFeedbacksT
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="icon">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => handleEdit(feedback)}
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
                   </TableCell>
@@ -238,6 +263,13 @@ export const PreSessionFeedbacksTable = ({ sessionStatus }: PreSessionFeedbacksT
           </Table>
         </div>
       </div>
+
+      <EditFeedbackDialog
+        feedback={selectedFeedback}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onSuccess={handleEditSuccess}
+      />
     </>
   )
 } 

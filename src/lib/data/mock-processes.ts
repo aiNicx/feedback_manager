@@ -1,10 +1,26 @@
 import { Process } from '../types/processes'
 
 let mockProcesses: Process[] = [
-  { id: '1', processo: 'Safety specialist' },
-  { id: '2', processo: 'Facility manager' },
-  { id: '3', processo: 'Legal specialist' },
-  { id: '4', processo: 'Compliance specialist' },
+  { 
+    id: '1', 
+    processo: 'Safety specialist',
+    domanda: 'Come valuti la capacità del collega di identificare e gestire i rischi per la sicurezza?'
+  },
+  { 
+    id: '2', 
+    processo: 'Facility manager',
+    domanda: 'Quanto è efficace il collega nella gestione e manutenzione delle strutture aziendali?'
+  },
+  { 
+    id: '3', 
+    processo: 'Legal specialist',
+    domanda: 'Come giudichi la competenza del collega nella gestione delle questioni legali?'
+  },
+  { 
+    id: '4', 
+    processo: 'Compliance specialist',
+    domanda: 'Quanto è efficace il collega nel garantire la conformità alle normative e ai regolamenti?'
+  },
 ]
 
 export const mockProcessesApi = {

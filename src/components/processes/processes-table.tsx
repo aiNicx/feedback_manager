@@ -15,6 +15,7 @@ export function ProcessesTable({ processes, onEdit }: ProcessesTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead>PROCESSO</TableHead>
+            <TableHead>DOMANDA</TableHead>
             <TableHead className="text-right"></TableHead>
           </TableRow>
         </TableHeader>
@@ -22,6 +23,7 @@ export function ProcessesTable({ processes, onEdit }: ProcessesTableProps) {
           {processes.map((process) => (
             <TableRow key={process.id}>
               <TableCell className="font-medium">{process.processo}</TableCell>
+              <TableCell>{process.domanda}</TableCell>
               <TableCell className="text-right">
                 <Button 
                   variant="ghost" 
