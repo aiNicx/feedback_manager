@@ -103,7 +103,6 @@ export const queries = {
           id, 
           name,
           project,
-          isclusterleader,
           leader:users!teams_leader_fkey(id, name, surname),
           team_clusters(
             id,
@@ -119,10 +118,12 @@ export const queries = {
     create: async (team: { 
       name: string; 
       leader: string | null; 
-      isclusterleader: boolean; 
       project: boolean;
+      company: string;
     }) => {
-      const { data, error } = await supabase
+      console.log('Tentativo di creazione team con dati:', team)
+      
+      const response = await supabase
         .from('teams')
         .insert([{
           id: crypto.randomUUID(),
@@ -132,7 +133,7 @@ export const queries = {
           id, 
           name,
           project,
-          isclusterleader,
+          company,
           leader:users!teams_leader_fkey(id, name, surname),
           team_clusters(
             id,
@@ -141,14 +142,29 @@ export const queries = {
           user_teams(id, user_id, team_id, created_at)
         `)
         .single()
-      if (error) throw error
-      return data
+
+      console.log('Risposta completa Supabase:', response)
+      
+      if (response.error) {
+        console.error('Dettagli errore Supabase:', {
+          message: response.error.message,
+          details: response.error.details,
+          hint: response.error.hint,
+          code: response.error.code
+        })
+        throw new Error(`Errore Supabase: ${response.error.message}`)
+      }
+
+      if (!response.data) {
+        throw new Error('Nessun dato ricevuto da Supabase')
+      }
+
+      return response.data
     },
 
     update: async (id: string, team: { 
       name?: string; 
       leader?: string | null; 
-      isclusterleader?: boolean;
       project?: boolean;
     }) => {
       const { data, error } = await supabase
@@ -159,7 +175,6 @@ export const queries = {
           id, 
           name,
           project,
-          isclusterleader,
           leader:users!teams_leader_fkey(id, name, surname),
           team_clusters(
             id,
@@ -225,7 +240,7 @@ export const queries = {
             id,
             name,
             project,
-            isclusterleader
+            company
           )
         `)
         .order('created_at', { ascending: false })
@@ -258,8 +273,7 @@ export const queries = {
           team:teams(
             id,
             name,
-            project,
-            isclusterleader
+            project
           )
         `)
         .single()
@@ -286,8 +300,7 @@ export const queries = {
           team:teams(
             id,
             name,
-            project,
-            isclusterleader
+            project
           )
         `)
         .single()

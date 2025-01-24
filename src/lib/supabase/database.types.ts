@@ -434,7 +434,6 @@ export type Database = {
           company: string | null
           created_at: string | null
           id: string
-          isclusterleader: boolean | null
           leader: string | null
           name: string
           project: boolean | null
@@ -443,7 +442,6 @@ export type Database = {
           company?: string | null
           created_at?: string | null
           id: string
-          isclusterleader?: boolean | null
           leader?: string | null
           name: string
           project?: boolean | null
@@ -452,7 +450,6 @@ export type Database = {
           company?: string | null
           created_at?: string | null
           id?: string
-          isclusterleader?: boolean | null
           leader?: string | null
           name?: string
           project?: boolean | null

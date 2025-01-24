@@ -29,16 +29,36 @@ export function CreateTeamDialog({
         throw new Error('Il nome del team è obbligatorio')
       }
 
+      // Recuperiamo la prima company disponibile
+      const companies = await queries.companies.getAll()
+      if (!companies || companies.length === 0) {
+        throw new Error('Nessuna company disponibile nel sistema')
+      }
+      const defaultCompany = companies[0].id
+
+      console.log('Dati del team da creare:', {
+        name: data.name.trim(),
+        leader: data.leaderId || null,
+        project: data.project,
+        company: defaultCompany
+      })
+
       // Creiamo prima il team
       const newTeam = await queries.teams.create({
         name: data.name.trim(),
         leader: data.leaderId || null,
-        isclusterleader: data.isclusterleader ?? false,
-        project: data.project
+        project: data.project,
+        company: defaultCompany
       })
+
+      console.log('Team creato:', newTeam)
 
       // Se è stato selezionato un cluster, creiamo l'associazione
       if (data.clusterId && newTeam) {
+        console.log('Creazione associazione cluster:', {
+          team_id: newTeam.id,
+          cluster_id: data.clusterId
+        })
         await queries.team_clusters.create({
           team_id: newTeam.id,
           cluster_id: data.clusterId
@@ -48,7 +68,11 @@ export function CreateTeamDialog({
       onOpenChange(false)
       onSuccess?.()
     } catch (err) {
-      console.error('Errore:', err)
+      console.error('Errore dettagliato:', err)
+      if (err instanceof Error) {
+        console.error('Message:', err.message)
+        console.error('Stack:', err.stack)
+      }
       setError(err instanceof Error ? err.message : 'Errore durante la creazione del team')
     } finally {
       setIsLoading(false)

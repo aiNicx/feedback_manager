@@ -17,7 +17,7 @@ export interface Membership extends UserTeam {
     id: string
     name: string
     project: boolean | null
-    isclusterleader: boolean | null
+    company: string | null
   } | null
 }
 

@@ -2,7 +2,6 @@ export interface Team {
   id: string
   name: string
   project: boolean | null
-  isclusterleader: boolean | null
   leader: { id: string; name: string; surname: string } | null
   team_clusters: Array<{ id: string; cluster: { id: string; name: string } | null }>
   user_teams: Array<{ 
@@ -16,7 +15,6 @@ export interface Team {
 export interface TeamFormData {
   name: string
   project: boolean
-  isclusterleader: boolean | undefined
   leaderId?: string | null
   clusterId?: string | null
 }

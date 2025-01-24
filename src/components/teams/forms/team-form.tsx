@@ -49,7 +49,6 @@ export function TeamForm({
       name: initialData?.name ?? '',
       clusterId: initialData?.clusterId ?? null,
       leaderId: initialData?.leaderId ?? null,
-      isclusterleader: initialData?.isclusterleader ?? false,
       project: initialData?.project ?? false
     }
   })
@@ -59,13 +58,12 @@ export function TeamForm({
       try {
         setIsLoadingData(true)
         
-        // Carica i potenziali leader (utenti che sono mentor)
+        // Carica tutti gli utenti come potenziali leader
         const users = await queries.users.getAll()
-        const mentors = users.filter(user => user.mentor)
-        setLeaders(mentors.map(mentor => ({
-          id: mentor.id,
-          name: mentor.name,
-          surname: mentor.surname
+        setLeaders(users.map(user => ({
+          id: user.id,
+          name: user.name,
+          surname: user.surname
         })))
 
         // Carica i cluster disponibili
@@ -172,24 +170,6 @@ export function TeamForm({
                 </SelectContent>
               </Select>
               <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="isclusterleader"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <FormLabel className="font-normal">
-                Questo team è un cluster leader?
-              </FormLabel>
             </FormItem>
           )}
         />

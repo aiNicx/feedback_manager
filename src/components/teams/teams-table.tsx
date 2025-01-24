@@ -48,9 +48,6 @@ export function TeamsTable({ teams, onSuccess }: TeamsTableProps) {
                 <span className="font-medium">Members:</span> {team.user_teams?.length || 0}
               </div>
               <div className="flex flex-wrap gap-2">
-                {team.isclusterleader && (
-                  <Badge variant="outline">Cluster Leader</Badge>
-                )}
                 {team.project && (
                   <Badge variant="outline">Progetto</Badge>
                 )}
@@ -67,7 +64,6 @@ export function TeamsTable({ teams, onSuccess }: TeamsTableProps) {
               <TableHead>CLUSTER</TableHead>
               <TableHead>TEAM LEADER</TableHead>
               <TableHead>MEMBERS</TableHead>
-              <TableHead>CLUSTER LEADER</TableHead>
               <TableHead>PROGETTO</TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
@@ -79,11 +75,6 @@ export function TeamsTable({ teams, onSuccess }: TeamsTableProps) {
                 <TableCell>{team.team_clusters?.[0]?.cluster?.name || '-'}</TableCell>
                 <TableCell>{`${team.leader?.name || ''} ${team.leader?.surname || ''}`}</TableCell>
                 <TableCell>{team.user_teams?.length || 0}</TableCell>
-                <TableCell>
-                  <Badge variant={team.isclusterleader ? "default" : "secondary"}>
-                    {team.isclusterleader ? 'Sì' : 'No'}
-                  </Badge>
-                </TableCell>
                 <TableCell>
                   <Badge variant={team.project ? "default" : "secondary"}>
                     {team.project ? 'Sì' : 'No'}
@@ -102,7 +93,7 @@ export function TeamsTable({ teams, onSuccess }: TeamsTableProps) {
             ))}
             {teams.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-4">
+                <TableCell colSpan={6} className="text-center py-4">
                   Nessun team trovato
                 </TableCell>
               </TableRow>

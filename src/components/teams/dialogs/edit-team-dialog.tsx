@@ -33,7 +33,6 @@ export function EditTeamDialog({
       await queries.teams.update(team.id, {
         name: data.name.trim(),
         leader: data.leaderId,
-        isclusterleader: data.isclusterleader ?? undefined,
         project: data.project
       })
 
@@ -107,7 +106,6 @@ export function EditTeamDialog({
               name: team.name,
               clusterId: team.team_clusters?.[0]?.cluster?.id || null,
               leaderId: team.leader?.id || null,
-              isclusterleader: team.isclusterleader ?? undefined,
               project: team.project ?? false
             }}
             onSubmit={handleSubmit}

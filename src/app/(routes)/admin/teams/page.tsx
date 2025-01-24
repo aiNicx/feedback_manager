@@ -15,10 +15,18 @@ export default function TeamsPage() {
     try {
       setIsLoading(true)
       const data = await queries.teams.getAll()
+      if (!data) {
+        throw new Error('Nessun dato ricevuto da Supabase')
+      }
       setTeams(data)
     } catch (err) {
       console.error('Errore nel caricamento dei team:', err)
-      setError('Si è verificato un errore nel caricamento dei team')
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        console.error('Dettagli errore:', JSON.stringify(err, null, 2))
+        setError('Si è verificato un errore nel caricamento dei team. Controlla la console per i dettagli.')
+      }
     } finally {
       setIsLoading(false)
     }
@@ -31,7 +39,6 @@ export default function TeamsPage() {
   // Calcola le statistiche
   const totalTeams = teams.length
   const projectTeams = teams.filter(t => t.project).length
-  const leaderTeams = teams.filter(t => t.isclusterleader).length
 
   if (error) {
     return (
@@ -68,7 +75,6 @@ export default function TeamsPage() {
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
           <StatCard title="TOTALE TEAMS" value={totalTeams} />
           <StatCard title="TEAMS PROGETTO" value={projectTeams} className="bg-blue-100" />
-          <StatCard title="TEAMS LEADER" value={leaderTeams} className="bg-green-100" />
         </div>
 
         <TeamsView 
