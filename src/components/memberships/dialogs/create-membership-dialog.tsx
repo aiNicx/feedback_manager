@@ -28,7 +28,9 @@ export function CreateMembershipDialog({
       const newMembership: MembershipCreate = {
         user_id: data.userId,
         team_id: data.teamId,
-        role: 'MEMBER'
+        role: 'MEMBER',
+        user: null,
+        team: null
       }
 
       mockMembershipsApi.create(newMembership)

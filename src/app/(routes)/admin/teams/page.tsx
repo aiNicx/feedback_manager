@@ -2,20 +2,43 @@
 
 import { TeamsView } from "@/components/teams/teams-view"
 import { StatCard } from "@/components/stats/stat-card"
-import { useState } from "react"
-import { mockTeamsApi } from "@/lib/data/mock-teams"
+import { useState, useEffect } from "react"
+import { queries } from "@/lib/supabase/queries"
 import type { Team } from "@/lib/types/teams"
 
 export default function TeamsPage() {
-  const [teams, setTeams] = useState<Team[]>(mockTeamsApi.getAll())
+  const [teams, setTeams] = useState<Team[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchTeams = async () => {
+    try {
+      setIsLoading(true)
+      const data = await queries.teams.getAll()
+      setTeams(data)
+    } catch (err) {
+      console.error('Errore nel caricamento dei team:', err)
+      setError('Si è verificato un errore nel caricamento dei team')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchTeams()
+  }, [])
 
   // Calcola le statistiche
   const totalTeams = teams.length
   const projectTeams = teams.filter(t => t.project).length
   const leaderTeams = teams.filter(t => t.isclusterleader).length
 
-  const handleSuccess = () => {
-    setTeams(mockTeamsApi.getAll())
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="text-red-500">{error}</div>
+      </div>
+    )
   }
 
   return (
@@ -50,7 +73,8 @@ export default function TeamsPage() {
 
         <TeamsView 
           teams={teams}
-          onSuccess={handleSuccess}
+          isLoading={isLoading}
+          onSuccess={fetchTeams}
         />
       </main>
     </div>

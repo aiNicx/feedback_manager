@@ -4,8 +4,7 @@ import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { TeamForm } from "../forms/team-form"
 import type { Team, TeamFormData } from "@/lib/types/teams"
-import { mockTeamsApi } from "@/lib/data/mock-teams"
-import { mockUsers } from "@/lib/data/mock-users"
+import { queries } from "@/lib/supabase/queries"
 
 interface EditTeamDialogProps {
   team: Team | null
@@ -30,41 +29,30 @@ export function EditTeamDialog({
       setIsLoading(true)
       setError(null)
 
-      console.log('Form data:', data)
-
-      // Troviamo il leader tra gli utenti
-      const leader = data.leaderId ? mockUsers.find(u => u.id === data.leaderId) : null
-
-      const updateData: Partial<Team> = {
+      // Aggiorniamo il team
+      await queries.teams.update(team.id, {
         name: data.name.trim(),
-        leader,
-        isclusterleader: data.isclusterleader,
-        project: data.project,
-      }
+        leader: data.leaderId,
+        isclusterleader: data.isclusterleader ?? undefined,
+        project: data.project
+      })
 
-      // Aggiorniamo il cluster solo se è stato selezionato
-      if (data.clusterId) {
-        const clusterName = data.clusterId === 'cluster1' ? 'Cluster Marketing' :
-                          data.clusterId === 'cluster2' ? 'Cluster Operations' :
-                          'Cluster Development'
+      // Se è stato cambiato il cluster
+      if (data.clusterId !== team.team_clusters?.[0]?.cluster?.id) {
+        // Prima eliminiamo le associazioni esistenti
+        await queries.team_clusters.deleteByTeamId(team.id)
         
-        updateData.team_clusters = [{
-          id: team.team_clusters?.[0]?.id || crypto.randomUUID(),
-          cluster: {
-            id: data.clusterId,
-            name: clusterName
-          }
-        }]
+        // Se è stato selezionato un nuovo cluster, creiamo la nuova associazione
+        if (data.clusterId) {
+          await queries.team_clusters.create({
+            team_id: team.id,
+            cluster_id: data.clusterId
+          })
+        }
       }
-
-      console.log('Update data:', updateData)
-      
-      const updatedTeam = mockTeamsApi.update(team.id, updateData)
-      console.log('Team updated:', updatedTeam)
       
       onOpenChange(false)
       if (onSuccess) {
-        console.log('Calling onSuccess from EditTeamDialog')
         onSuccess()
       }
     } catch (err) {
@@ -82,13 +70,14 @@ export function EditTeamDialog({
       setIsLoading(true)
       setError(null)
 
-      console.log('Deleting team:', team.id)
-      mockTeamsApi.delete(team.id)
-      console.log('Team deleted')
+      // Prima eliminiamo le associazioni con i cluster
+      await queries.team_clusters.deleteByTeamId(team.id)
+      
+      // Poi eliminiamo il team
+      await queries.teams.delete(team.id)
       
       onOpenChange(false)
       if (onSuccess) {
-        console.log('Calling onSuccess from EditTeamDialog after delete')
         onSuccess()
       }
     } catch (err) {
@@ -118,8 +107,8 @@ export function EditTeamDialog({
               name: team.name,
               clusterId: team.team_clusters?.[0]?.cluster?.id || null,
               leaderId: team.leader?.id || null,
-              isclusterleader: team.isclusterleader,
-              project: team.project
+              isclusterleader: team.isclusterleader ?? undefined,
+              project: team.project ?? false
             }}
             onSubmit={handleSubmit}
             onDelete={handleDelete}

@@ -5,15 +5,15 @@ export interface Membership {
   team_id: string
   role: 'MEMBER' | 'LEADER'
   created_at: string
-  user?: {
+  user: {
     name: string
     surname: string
     email: string
   } | null
-  team?: {
+  team: {
     name: string
-    project: boolean
-    isclusterleader: boolean
+    project: boolean | null
+    isclusterleader: boolean | null
   } | null
 }
 
@@ -28,6 +28,8 @@ export interface MembershipCreate {
   user_id: string
   team_id: string
   role: 'MEMBER' | 'LEADER'
+  user: null
+  team: null
 }
 
 // Tipo per l'aggiornamento

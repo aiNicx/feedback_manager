@@ -4,8 +4,7 @@ import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { TeamForm } from "../forms/team-form"
 import type { TeamFormData } from "@/lib/types/teams"
-import { mockTeamsApi } from "@/lib/data/mock-teams"
-import { mockUsers } from "@/lib/data/mock-users"
+import { queries } from "@/lib/supabase/queries"
 
 interface CreateTeamDialogProps {
   open: boolean
@@ -30,22 +29,21 @@ export function CreateTeamDialog({
         throw new Error('Il nome del team è obbligatorio')
       }
 
-      mockTeamsApi.create({
+      // Creiamo prima il team
+      const newTeam = await queries.teams.create({
         name: data.name.trim(),
-        leader: data.leaderId ? mockUsers.find(u => u.id === data.leaderId) || null : null,
-        isclusterleader: data.isclusterleader || false,
-        project: data.project || false,
-        team_clusters: data.clusterId ? [{
-          id: crypto.randomUUID(),
-          cluster: {
-            id: data.clusterId,
-            name: data.clusterId === 'cluster1' ? 'Cluster Marketing' :
-                  data.clusterId === 'cluster2' ? 'Cluster Operations' :
-                  'Cluster Development'
-          }
-        }] : [],
-        user_teams: []
+        leader: data.leaderId || null,
+        isclusterleader: data.isclusterleader ?? false,
+        project: data.project
       })
+
+      // Se è stato selezionato un cluster, creiamo l'associazione
+      if (data.clusterId && newTeam) {
+        await queries.team_clusters.create({
+          team_id: newTeam.id,
+          cluster_id: data.clusterId
+        })
+      }
       
       onOpenChange(false)
       onSuccess?.()

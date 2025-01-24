@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { teamSchema } from "./team-schema"
 import type { TeamFormData } from "@/lib/types/teams"
-import { mockUsers } from "@/lib/data/mock-users"
+import { queries } from "@/lib/supabase/queries"
+import { useEffect, useState } from "react"
 
 interface TeamFormProps {
   onSubmit: (data: TeamFormData) => void
@@ -19,6 +20,17 @@ interface TeamFormProps {
   mode?: 'create' | 'edit'
 }
 
+interface Leader {
+  id: string
+  name: string
+  surname: string
+}
+
+interface Cluster {
+  id: string
+  name: string
+}
+
 export function TeamForm({
   onSubmit,
   onDelete,
@@ -26,6 +38,11 @@ export function TeamForm({
   initialData,
   mode = 'create'
 }: TeamFormProps) {
+  const [leaders, setLeaders] = useState<Leader[]>([])
+  const [clusters, setClusters] = useState<Cluster[]>([])
+  const [isLoadingData, setIsLoadingData] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
   const form = useForm<TeamFormData>({
     resolver: zodResolver(teamSchema),
     defaultValues: {
@@ -37,15 +54,52 @@ export function TeamForm({
     }
   })
 
-  // Ottieni la lista dei potenziali leader (utenti che sono mentor)
-  const potentialLeaders = mockUsers.filter(user => user.isMentor)
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoadingData(true)
+        
+        // Carica i potenziali leader (utenti che sono mentor)
+        const users = await queries.users.getAll()
+        const mentors = users.filter(user => user.mentor)
+        setLeaders(mentors.map(mentor => ({
+          id: mentor.id,
+          name: mentor.name,
+          surname: mentor.surname
+        })))
 
-  // Lista dei cluster disponibili
-  const availableClusters = [
-    { id: 'cluster1', name: 'Cluster Marketing' },
-    { id: 'cluster2', name: 'Cluster Operations' },
-    { id: 'cluster3', name: 'Cluster Development' }
-  ]
+        // Carica i cluster disponibili
+        const clustersData = await queries.clusters.getAll()
+        setClusters(clustersData.map(cluster => ({
+          id: cluster.id,
+          name: cluster.name
+        })))
+      } catch (err) {
+        console.error('Errore nel caricamento dei dati:', err)
+        setError('Si è verificato un errore nel caricamento dei dati')
+      } finally {
+        setIsLoadingData(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  if (error) {
+    return (
+      <div className="text-red-500 p-4">
+        {error}
+      </div>
+    )
+  }
+
+  if (isLoadingData) {
+    return (
+      <div className="p-4 text-gray-500">
+        Caricamento dati in corso...
+      </div>
+    )
+  }
 
   return (
     <Form {...form}>
@@ -81,7 +135,7 @@ export function TeamForm({
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="none">Nessun cluster</SelectItem>
-                  {availableClusters.map((cluster) => (
+                  {clusters.map((cluster) => (
                     <SelectItem key={cluster.id} value={cluster.id}>
                       {cluster.name}
                     </SelectItem>
@@ -110,7 +164,7 @@ export function TeamForm({
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="none">Nessun leader</SelectItem>
-                  {potentialLeaders.map((leader) => (
+                  {leaders.map((leader) => (
                     <SelectItem key={leader.id} value={leader.id}>
                       {leader.name} {leader.surname}
                     </SelectItem>

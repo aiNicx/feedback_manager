@@ -8,35 +8,45 @@ let mockMemberships: Membership[] = [
     user_id: '1',
     team_id: '1',
     role: 'MEMBER',
-    created_at: '2024-01-01T10:00:00Z'
+    created_at: '2024-01-01T10:00:00Z',
+    user: null,
+    team: null
   },
   {
     id: '2',
     user_id: '2',
     team_id: '1',
     role: 'LEADER',
-    created_at: '2024-01-01T10:00:00Z'
+    created_at: '2024-01-01T10:00:00Z',
+    user: null,
+    team: null
   },
   {
     id: '3',
     user_id: '3',
     team_id: '2',
     role: 'MEMBER',
-    created_at: '2024-01-01T10:00:00Z'
+    created_at: '2024-01-01T10:00:00Z',
+    user: null,
+    team: null
   },
   {
     id: '4',
     user_id: '4',
     team_id: '2',
     role: 'LEADER',
-    created_at: '2024-01-01T10:00:00Z'
+    created_at: '2024-01-01T10:00:00Z',
+    user: null,
+    team: null
   },
   {
     id: '5',
     user_id: '5',
     team_id: '3',
     role: 'LEADER',
-    created_at: '2024-01-01T10:00:00Z'
+    created_at: '2024-01-01T10:00:00Z',
+    user: null,
+    team: null
   }
 ]
 

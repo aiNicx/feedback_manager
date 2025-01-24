@@ -100,8 +100,11 @@ export const queries = {
       const { data, error } = await supabase
         .from('teams')
         .select(`
-          id, name, company, created_at, isclusterleader, project,
-          leader:users(id, name, surname),
+          id, 
+          name,
+          project,
+          isclusterleader,
+          leader:users!teams_leader_fkey(id, name, surname),
           team_clusters(
             id,
             cluster:clusters(id, name)
@@ -112,11 +115,12 @@ export const queries = {
       if (error) throw error
       return data
     },
+
     create: async (team: { 
       name: string; 
       leader: string | null; 
-      isclusterleader: boolean | null;
-      project: boolean | null;
+      isclusterleader: boolean; 
+      project: boolean;
     }) => {
       const { data, error } = await supabase
         .from('teams')
@@ -125,8 +129,11 @@ export const queries = {
           ...team
         }])
         .select(`
-          id, name, company, created_at, isclusterleader, project,
-          leader:users(id, name, surname),
+          id, 
+          name,
+          project,
+          isclusterleader,
+          leader:users!teams_leader_fkey(id, name, surname),
           team_clusters(
             id,
             cluster:clusters(id, name)
@@ -137,14 +144,23 @@ export const queries = {
       if (error) throw error
       return data
     },
-    update: async (id: string, team: { name?: string; leader?: string | null; company?: string | null }) => {
+
+    update: async (id: string, team: { 
+      name?: string; 
+      leader?: string | null; 
+      isclusterleader?: boolean;
+      project?: boolean;
+    }) => {
       const { data, error } = await supabase
         .from('teams')
         .update(team)
         .eq('id', id)
         .select(`
-          id, name, company, created_at, isclusterleader, project,
-          leader:users(id, name, surname),
+          id, 
+          name,
+          project,
+          isclusterleader,
+          leader:users!teams_leader_fkey(id, name, surname),
           team_clusters(
             id,
             cluster:clusters(id, name)
@@ -155,6 +171,7 @@ export const queries = {
       if (error) throw error
       return data
     },
+
     delete: async (id: string) => {
       const { error } = await supabase
         .from('teams')
@@ -178,6 +195,7 @@ export const queries = {
       if (error) throw error
       return data
     },
+
     deleteByTeamId: async (teamId: string) => {
       const { error } = await supabase
         .from('team_clusters')

@@ -7,13 +7,15 @@ import { TeamsTable } from './teams-table'
 import { CreateTeamDialog } from './dialogs/create-team-dialog'
 import { EditTeamDialog } from './dialogs/edit-team-dialog'
 import type { Team } from '@/lib/types/teams'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface TeamsViewProps {
   teams: Team[]
+  isLoading: boolean
   onSuccess: () => void
 }
 
-export function TeamsView({ teams, onSuccess }: TeamsViewProps) {
+export function TeamsView({ teams, isLoading, onSuccess }: TeamsViewProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -24,9 +26,20 @@ export function TeamsView({ teams, onSuccess }: TeamsViewProps) {
     team.leader?.surname?.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const handleSuccess = () => {
-    console.log('Operation successful, calling onSuccess')
-    onSuccess()
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-10 w-96" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <div className="space-y-2">
+          {[...Array(5)].map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full" />
+          ))}
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -56,7 +69,7 @@ export function TeamsView({ teams, onSuccess }: TeamsViewProps) {
         <div className="p-4">
           <TeamsTable 
             teams={filteredTeams} 
-            onSuccess={handleSuccess}
+            onSuccess={onSuccess}
           />
         </div>
       </div>
@@ -64,14 +77,14 @@ export function TeamsView({ teams, onSuccess }: TeamsViewProps) {
       <CreateTeamDialog
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
-        onSuccess={handleSuccess}
+        onSuccess={onSuccess}
       />
 
       <EditTeamDialog
         team={selectedTeam}
         open={!!selectedTeam}
         onOpenChange={(open) => !open && setSelectedTeam(null)}
-        onSuccess={handleSuccess}
+        onSuccess={onSuccess}
       />
     </div>
   )
